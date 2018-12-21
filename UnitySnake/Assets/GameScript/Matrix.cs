@@ -55,7 +55,7 @@ namespace NeuralNetwork
             }
         }
 
-        public double[][] Value => _matrix;
+        public double[][] Value { get { return _matrix; } }
 
         public static Matrix operator -(Matrix a, Matrix b)
         {

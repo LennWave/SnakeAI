@@ -1,82 +1,85 @@
 using System;
 using System.Linq;
 
-public class NeuralNetwork
+namespace NeuralNetwork
 {
-    private readonly double _learningRate;
-    private Matrix _weightHiddenOutput;
-    private Matrix _weightInputHidden;
-
-    public NeuralNetwork(int numberOfInputNodes, int numberOfHiddenNodes, int numberOfOutputNodes, double learningRate)
+    public class NeuralNetwork
     {
-        _learningRate = learningRate;
+        private readonly double _learningRate;
+        private Matrix _weightHiddenOutput;
+        private Matrix _weightInputHidden;
 
-        _weightInputHidden = Matrix.Create(numberOfHiddenNodes, numberOfInputNodes);
-        _weightHiddenOutput = Matrix.Create(numberOfOutputNodes, numberOfHiddenNodes);
-
-        RandomizeWeights();
-    }
-
-    private void RandomizeWeights()
-    {
-        var rnd = new Random();
-
-        //distribute -0.5 to 0.5.
-        _weightHiddenOutput.Initialize(() => rnd.NextDouble() - 0.5);
-        _weightInputHidden.Initialize(() => rnd.NextDouble() - 0.5);
-    }
-
-    public void Train(double[] inputs, double[] targets)
-    {
-        var inputSignals = ConvertToMatrix(inputs);
-        var targetSignals = ConvertToMatrix(targets);
-
-        var hiddenOutputs = Sigmoid(_weightInputHidden * inputSignals);
-        var finalOutputs = Sigmoid(_weightHiddenOutput * hiddenOutputs);
-
-        var outputErrors = targetSignals - finalOutputs;
-        
-        var hiddenErrors = _weightHiddenOutput.Transpose() * outputErrors;
-
-        _weightHiddenOutput += _learningRate * outputErrors * finalOutputs * (1.0 - finalOutputs) * hiddenOutputs.Transpose();
-        _weightInputHidden += _learningRate * hiddenErrors * hiddenOutputs * (1.0 - hiddenOutputs) * inputSignals.Transpose();
-    }
-    
-    public double[] Query(double[] inputs)
-    {
-        var inputSignals = ConvertToMatrix(inputs);
-
-        var hiddenOutputs = Sigmoid(_weightInputHidden * inputSignals);
-        var finalOutputs = Sigmoid(_weightHiddenOutput * hiddenOutputs);
-
-        return finalOutputs.Value.SelectMany(x => x.Select(y => y)).ToArray();
-    }
-
-    private static Matrix ConvertToMatrix(double[] inputList)
-    {
-        var input = new double[inputList.Length][];
-
-        for (var x = 0; x < input.Length; x++)
+        public NeuralNetwork(int numberOfInputNodes, int numberOfHiddenNodes, int numberOfOutputNodes, double learningRate)
         {
-            input[x] = new[] { inputList[x] };
+            _learningRate = learningRate;
+
+            _weightInputHidden = Matrix.Create(numberOfHiddenNodes, numberOfInputNodes);
+            _weightHiddenOutput = Matrix.Create(numberOfOutputNodes, numberOfHiddenNodes);
+
+            RandomizeWeights();
         }
 
-        return Matrix.Create(input);
-    }
-
-    # TODO: Should add Rectifier activation function
-    private Matrix Sigmoid(Matrix matrix)
-    {
-        var newMatrix = Matrix.Create(matrix.Value.Length, matrix.Value[0].Length);
-
-        for (var x = 0; x < matrix.Value.Length; x++)
+        private void RandomizeWeights()
         {
-            for (var y = 0; y < matrix.Value[x].Length; y++)
+            var rnd = new Random();
+
+            //distribute -0.5 to 0.5.
+            _weightHiddenOutput.Initialize(() => rnd.NextDouble() - 0.5);
+            _weightInputHidden.Initialize(() => rnd.NextDouble() - 0.5);
+        }
+
+        public void Train(double[] inputs, double[] targets)
+        {
+            var inputSignals = ConvertToMatrix(inputs);
+            var targetSignals = ConvertToMatrix(targets);
+
+            var hiddenOutputs = Sigmoid(_weightInputHidden * inputSignals);
+            var finalOutputs = Sigmoid(_weightHiddenOutput * hiddenOutputs);
+
+            var outputErrors = targetSignals - finalOutputs;
+
+            var hiddenErrors = _weightHiddenOutput.Transpose() * outputErrors;
+
+            _weightHiddenOutput += _learningRate * outputErrors * finalOutputs * (1.0 - finalOutputs) * hiddenOutputs.Transpose();
+            _weightInputHidden += _learningRate * hiddenErrors * hiddenOutputs * (1.0 - hiddenOutputs) * inputSignals.Transpose();
+        }
+
+        public double[] Query(double[] inputs)
+        {
+            var inputSignals = ConvertToMatrix(inputs);
+
+            var hiddenOutputs = Sigmoid(_weightInputHidden * inputSignals);
+            var finalOutputs = Sigmoid(_weightHiddenOutput * hiddenOutputs);
+
+            return finalOutputs.Value.SelectMany(x => x.Select(y => y)).ToArray();
+        }
+
+        private static Matrix ConvertToMatrix(double[] inputList)
+        {
+            var input = new double[inputList.Length][];
+
+            for (var x = 0; x < input.Length; x++)
             {
-                newMatrix.Value[x][y] = 1 / (1 + Math.Pow(Math.E, -matrix.Value[x][y]));
+                input[x] = new[] { inputList[x] };
             }
+
+            return Matrix.Create(input);
         }
 
-        return newMatrix;
+        //# TODO: Should add Rectifier activation function
+        private Matrix Sigmoid(Matrix matrix)
+        {
+            var newMatrix = Matrix.Create(matrix.Value.Length, matrix.Value[0].Length);
+
+            for (var x = 0; x < matrix.Value.Length; x++)
+            {
+                for (var y = 0; y < matrix.Value[x].Length; y++)
+                {
+                    newMatrix.Value[x][y] = 1 / (1 + Math.Pow(Math.E, -matrix.Value[x][y]));
+                }
+            }
+
+            return newMatrix;
+        }
     }
 }
