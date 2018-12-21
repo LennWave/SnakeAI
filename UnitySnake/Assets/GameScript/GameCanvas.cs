@@ -2,9 +2,12 @@
 
 public class GameCanvas : MonoBehaviour
 {
-
     Texture2D texture;
+
     public Vector2Int size;
+
+
+
 
     int index;
 
@@ -17,16 +20,14 @@ public class GameCanvas : MonoBehaviour
 
         Tick();
 
-        
-
-
     }
 
     public  int[,] getPixels()
     {
-        int [,] result = new int[];
+        //int [,] result = new int[];
 
 
+        return null;
 
     }
 
@@ -66,6 +67,6 @@ public class GameCanvas : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Tick();
+        Tick();
     }
 }
