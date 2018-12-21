@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace NeuralNetwork
 {
@@ -20,6 +21,13 @@ namespace NeuralNetwork
         private Matrix(double[][] array)
         {
             _matrix = array;
+        }
+
+        public void Mutate(float amount)
+        {
+            _matrix[UnityEngine.Random.Range(0,_matrix.Length)][0] += (UnityEngine.Random.Range(-.25f, .25f) /amount) ;
+            _matrix[UnityEngine.Random.Range(0, _matrix.Length)][0] += (UnityEngine.Random.Range(-.25f, .25f) / amount);
+
         }
 
         private static double[][] CreateJagged(int rows, int cols)

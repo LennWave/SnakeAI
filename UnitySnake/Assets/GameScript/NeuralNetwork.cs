@@ -6,8 +6,8 @@ namespace NeuralNetwork
     public class NeuralNetwork
     {
         private readonly double _learningRate;
-        private Matrix _weightHiddenOutput;
-        private Matrix _weightInputHidden;
+        public Matrix _weightHiddenOutput;
+        public Matrix _weightInputHidden;
 
         public NeuralNetwork(int numberOfInputNodes, int numberOfHiddenNodes, int numberOfOutputNodes, double learningRate)
         {
@@ -19,7 +19,13 @@ namespace NeuralNetwork
             RandomizeWeights();
         }
 
-        private void RandomizeWeights()
+        public void Mutate(float amount)
+        {
+            _weightHiddenOutput.Mutate(amount);
+            _weightInputHidden.Mutate(amount);
+        }
+
+        public void RandomizeWeights()
         {
             var rnd = new Random();
 

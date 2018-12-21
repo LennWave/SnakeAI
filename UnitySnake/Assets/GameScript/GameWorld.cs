@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
+//using static NeuralNetwork = NeuralNetwork.NeuralNetwork;
 
 public class GameWorld : MonoBehaviour
 {
@@ -19,32 +19,43 @@ public class GameWorld : MonoBehaviour
     public int TotalEaten = 0;
     public int Bonus = 0;
 
+    public int ticks = 0;
+
     public GameObject TotalScoreLabel;
     public GameObject CandyScoreLabel;
     public GameObject BonusScoreLabel;
 
+   public  NeuralNetwork.NeuralNetwork network;
+    NeuralGameManager control;
+
     // Use this for initialization
-    void Start()
+    public void Initialize(NeuralGameManager c)
     {
+        control = c;
+        //network = nn;
+        network = c.CreateManager(); //  new NeuralNetwork.NeuralNetwork(2, 10, 4, Random.Range(1.1f,2.8f));
+
         GenerateWorld();
         snake = Snake.Instantiate<Snake>(SnakePrefab);
         snake.transform.SetParent(this.transform);
 
         snake.Body.Add(GameObject.Instantiate(bodyPrefab, snake.transform));
-        //snake.Body.Add(GameObject.Instantiate(bodyPrefab, snake.transform));
-        //snake.Body.Add(GameObject.Instantiate(bodyPrefab, snake.transform));
-        //snake.Body.Add(GameObject.Instantiate(bodyPrefab, snake.transform));
 
         var startPos = new Vector2Int( size.x/2, size.y/2);
         var startDir = Vector2Int.up;
 
-        SpawnCandy();
+        //SpawnCandy();
+
+        candy.transform.localPosition = new Vector3(8,8,0);
+
 
         snake.Initialize(startPos, startDir);
 
+        //body
+        //candy
+        //size
 
-        StartCoroutine("SlowUpdate");
-
+        //StartCoroutine("SlowUpdate");
     }
 
     void GenerateWorld()
@@ -85,7 +96,68 @@ public class GameWorld : MonoBehaviour
     public void Tick()
     {
         if (snake.isDead)
+        {
+            StopAllCoroutines();
+            control.SpawnNew(this.transform.localPosition, this);
+            Destroy(this.gameObject);
             return;
+        }
+
+        ticks++;
+
+
+        var input = new double [2];
+        //candy
+        input[0] = Mathf.FloorToInt(candy.transform.localPosition.x / size.x) + transform.localPosition.y;
+        //input[1] = (candy.transform.localPosition.x * candy.transform.localPosition.y) / (size.x * size.y);
+        //body
+        input[1] = Mathf.FloorToInt(snake.Body[0].transform.localPosition.x / size.x) + snake.Body[0].transform.localPosition.y;
+
+        //input[2] = (snake.Body[0].transform.position.x * snake.Body[0].transform.position.y) / (size.x * size.y);
+        //input[3] = (snake.Body[0].transform.position.x * snake.Body[0].transform.position.y) / (size.x * size.y);
+        //score
+        //input[2] = TotalEaten / (TotalScore + 1);
+        //dist
+        //input[3] = ticks;
+
+        var output = network.Query(input);
+
+        //Debug.Log(output);
+
+
+        int highest = 0;
+        for (int i = 0; i < output.Length; i++)
+        {
+            //Debug.Log(i + " - " + output[i]);
+
+            if (output[highest] < output[i])
+            {
+                highest = i;
+            }
+
+        }
+        //Debug.Log("Highest " + highest);
+
+
+        switch (highest)
+        {
+            case 0:
+                snake.dir = Vector3.up;
+                break;
+            case 1:
+                snake.dir = Vector3.left;
+                break;
+            case 2:
+                snake.dir = Vector3.down;
+                break;
+            case 3:
+                snake.dir = Vector3.right;
+                break;
+            default:
+                break;
+        }
+
+
 
         snake.Tick();
 
@@ -111,9 +183,9 @@ public class GameWorld : MonoBehaviour
         //check borders
         if (snake.IsDead(size))
         {
-            Debug.Log("Dead");
-            StartCoroutine(snake.Dead());
-
+            //Debug.Log("Dead");
+            //StartCoroutine(snake.Dead());
+            snake.isDead = true;
         }
 
         TotalScoreLabel.GetComponent<TextMesh>().text = TotalScore.ToString();
@@ -151,6 +223,6 @@ public class GameWorld : MonoBehaviour
         {
             snake.dir = Vector3.right;
         }
-        //Tick();
+        Tick();
     }
 }
