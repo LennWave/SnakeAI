@@ -25,8 +25,9 @@ namespace NeuralNetwork
 
         public void Mutate(float amount)
         {
-            _matrix[UnityEngine.Random.Range(0,_matrix.Length)][0] += (UnityEngine.Random.Range(-.25f, .25f) /amount) ;
-            _matrix[UnityEngine.Random.Range(0, _matrix.Length)][0] += (UnityEngine.Random.Range(-.25f, .25f) / amount);
+
+            _matrix[UnityEngine.Random.Range(0,_matrix.Length)][0] += UnityEngine.Random.Range(-.25f, .25f) / amount;
+            _matrix[UnityEngine.Random.Range(0, _matrix.Length)][0] += UnityEngine.Random.Range(-.25f, .25f) / amount;
 
         }
 

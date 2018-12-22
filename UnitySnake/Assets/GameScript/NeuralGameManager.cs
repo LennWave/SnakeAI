@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using NeuralNetwork.Problems;
+using System;
+using System.Linq;
+using UnityEngine;
 
 public class NeuralGameManager : MonoBehaviour
 {
@@ -23,8 +26,11 @@ public class NeuralGameManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        currenthighscore = highscore;
         network = CreateManager();// new NeuralNetwork.NeuralNetwork(2, 10, 4, 1.8f);
+
+        
+
+        currenthighscore = highscore;
         bestIn = network._weightInputHidden;
         bestOut = network._weightHiddenOutput;
 
@@ -40,6 +46,7 @@ public class NeuralGameManager : MonoBehaviour
 
     public void SpawnNew(Vector3 pos, GameWorld oldworld = null)
     {
+        //attempts
         atempt++;
         if (atempt > maxAtempt && highscore == currenthighscore)
         {
@@ -56,6 +63,7 @@ public class NeuralGameManager : MonoBehaviour
         {
             atempt = 0;
             network.Mutate(highscore);
+            currenthighscore = highscore;
             bestIn = network._weightInputHidden;
             bestOut = network._weightHiddenOutput;
         }
@@ -79,8 +87,6 @@ public class NeuralGameManager : MonoBehaviour
                 bestOut = network._weightHiddenOutput;
             }
         }
-        else
-            Debug.Log("no oldworld");
 
         var go = GameWorld.Instantiate<GameWorld>(prefab, this.transform);
         go.Initialize(this);
@@ -91,28 +97,19 @@ public class NeuralGameManager : MonoBehaviour
 
     public void SetBestweights(NeuralNetwork.NeuralNetwork n)
     {
-
         //todo : probably save?
         bestIn = n._weightInputHidden;
         bestOut = n._weightHiddenOutput;
-
     }
+
     public void GetBestweights(NeuralNetwork.NeuralNetwork n)
     {
-
         n._weightInputHidden = bestIn;
         n._weightHiddenOutput = bestOut;;
-
     }
+
     public NeuralNetwork.NeuralNetwork CreateManager()
     {
-        return new NeuralNetwork.NeuralNetwork(4, 10, 4, 1.8f);
-    }
-
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        return new NeuralNetwork.NeuralNetwork(5, 5, 4, 3.8f);
     }
 }

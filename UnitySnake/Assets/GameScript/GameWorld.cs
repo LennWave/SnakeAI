@@ -106,21 +106,27 @@ public class GameWorld : MonoBehaviour
         ticks++;
 
 
-        var input = new double [2];
+        var input = new double [5];
         //candy
-        input[0] = Mathf.FloorToInt(candy.transform.localPosition.x / size.x) + transform.localPosition.y;
+        input[0] = (candy.transform.localPosition.y * size.x + candy.transform.localPosition.y) / (size.x * size.y);
+        //Debug.Log(input[0]);
         //input[1] = (candy.transform.localPosition.x * candy.transform.localPosition.y) / (size.x * size.y);
         //body
-        input[1] = Mathf.FloorToInt(snake.Body[0].transform.localPosition.x / size.x) + snake.Body[0].transform.localPosition.y;
-
+        input[1] = (snake.Body[0].transform.localPosition.y * size.x+ snake.Body[0].transform.localPosition.y) / (size.x * size.y);
+        //Debug.Log(input[1]);
+        input[2] = 1 / size.x;
+        input[3] = 1 / size.y;
         //input[2] = (snake.Body[0].transform.position.x * snake.Body[0].transform.position.y) / (size.x * size.y);
         //input[3] = (snake.Body[0].transform.position.x * snake.Body[0].transform.position.y) / (size.x * size.y);
         //score
         //input[2] = TotalEaten / (TotalScore + 1);
         //dist
-        //input[3] = ticks;
+        input[4] = TotalEaten / ticks;
 
         var output = network.Query(input);
+
+        if (input[4] == 0 && ticks > 100)
+            snake.isDead = true;
 
         //Debug.Log(output);
 
